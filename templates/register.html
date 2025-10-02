@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<h2>Register</h2>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <div class="mb-3">
+    {{ form.name.label }} {{ form.name(class="form-control") }}
+    {% for e in form.name.errors %}<div class="text-danger">{{ e }}</div>{% endfor %}
+  </div>
+  <div class="mb-3">
+    {{ form.email.label }} {{ form.email(class="form-control") }}
+    {% for e in form.email.errors %}<div class="text-danger">{{ e }}</div>{% endfor %}
+  </div>
+  <div class="mb-3">
+    {{ form.password.label }} {{ form.password(class="form-control") }}
+    {% for e in form.password.errors %}<div class="text-danger">{{ e }}</div>{% endfor %}
+  </div>
+  <div class="mb-3">
+    {{ form.password2.label }} {{ form.password2(class="form-control") }}
+    {% for e in form.password2.errors %}<div class="text-danger">{{ e }}</div>{% endfor %}
+  </div>
+  <button class="btn btn-primary" type="submit">Register</button>
+</form>
+{% endblock %}

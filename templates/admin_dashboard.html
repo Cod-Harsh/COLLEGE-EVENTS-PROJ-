@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<h2>Admin Dashboard</h2>
+
+<p><a class="btn btn-success" href="{{ url_for('create_event') }}">Create Event</a></p>
+
+<h4>Events</h4>
+<table class="table table-sm">
+  <thead><tr><th>Title</th><th>Date</th><th>Venue</th><th>Actions</th></tr></thead>
+  <tbody>
+  {% for e in events %}
+    <tr>
+      <td>{{ e.title }}</td>
+      <td>{{ e.date.strftime('%Y-%m-%d %H:%M') }}</td>
+      <td>{{ e.venue or 'TBA' }}</td>
+      <td>
+        <form method="post" action="{{ url_for('delete_event', event_id=e.id) }}" style="display:inline;">
+          <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Delete event?')">Delete</button>
+        </form>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="4">No events</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h4>Pending Registrations</h4>
+<table class="table table-sm">
+  <thead><tr><th>User</th><th>Event</th><th>When</th><th>Action</th></tr></thead>
+  <tbody>
+    {% for r in pending_regs %}
+      <tr>
+        <td>{{ r.user.name }} ({{ r.user.email }})</td>
+        <td>{{ r.event.title }}</td>
+        <td>{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>
+          <form method="post" action="{{ url_for('registration_action', reg_id=r.id) }}">
+            <button name="action" value="accept" class="btn btn-sm btn-success">Accept</button>
+            <button name="action" value="reject" class="btn btn-sm btn-danger">Reject</button>
+          </form>
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="4">No pending registrations</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

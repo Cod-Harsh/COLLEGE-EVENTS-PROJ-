@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}My Registrations{% endblock %}
+{% block content %}
+<h2>My Registrations</h2>
+<table class="table table-sm">
+  <thead><tr><th>Event</th><th>Date</th><th>Status</th><th>Registered At</th></tr></thead>
+  <tbody>
+    {% for r in regs %}
+      <tr>
+        <td><a href="{{ url_for('view_event', event_id=r.event.id) }}">{{ r.event.title }}</a></td>
+        <td>{{ r.event.date.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>{{ r.status }}</td>
+        <td>{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="4">You have no registrations.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

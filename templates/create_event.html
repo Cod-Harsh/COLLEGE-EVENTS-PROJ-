@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Create Event{% endblock %}
+{% block content %}
+<h2>Create Event</h2>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <div class="mb-3">
+    {{ form.title.label }} {{ form.title(class="form-control") }}
+  </div>
+  <div class="mb-3">
+    {{ form.description.label }} {{ form.description(class="form-control", rows=4) }}
+  </div>
+  <div class="mb-3">
+    {{ form.venue.label }} {{ form.venue(class="form-control") }}
+  </div>
+  <div class="mb-3">
+    {{ form.date.label }} {{ form.date(class="form-control") }}
+  </div>
+  <div class="mb-3">
+    {{ form.capacity.label }} {{ form.capacity(class="form-control") }}
+  </div>
+  <button type="submit" class="btn btn-primary">Create Event</button>
+</form>
+{% endblock %}

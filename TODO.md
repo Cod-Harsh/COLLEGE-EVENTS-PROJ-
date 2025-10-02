@@ -1,0 +1,3 @@
+- [x] Update navbar background color to semi-transparent primary blue (rgba(61, 130, 233, 0.2))
+- [x] Increase blur effect to 15px for more pronounced glassy effect
+- [ ] Test the changes by running the application
