@@ -9,8 +9,11 @@ from datetime import datetime
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+
+    # ----------------- Initialize Flask-SQLAlchemy -----------------
     db.init_app(app)
 
+    # ----------------- Flask-Login Setup -----------------
     login = LoginManager()
     login.login_view = 'login'
     login.init_app(app)
@@ -19,9 +22,10 @@ def create_app():
     def load_user(user_id):
         return User.query.get(int(user_id))
 
-    # ✅ Initialize DB and create default admin (Flask 3.x safe)
+    # ----------------- Create DB & Default Admin -----------------
     with app.app_context():
         db.create_all()
+        # Default admin
         if not User.query.filter_by(email='admin@college.edu').first():
             admin = User(
                 name='Admin',
@@ -32,21 +36,11 @@ def create_app():
             db.session.add(admin)
             db.session.commit()
 
-    # ---------------- ROUTES ---------------- #
-
+    # ----------------- ROUTES -----------------
     @app.route('/')
     def index():
-        now = datetime.utcnow()
         events = Event.query.order_by(Event.date.asc()).all()
         return render_template('index.html', events=events)
-
-    @app.route('/event/<int:event_id>')
-    def view_event(event_id):
-        event = Event.query.get_or_404(event_id)
-        registered = None
-        if current_user.is_authenticated:
-            registered = Registration.query.filter_by(user_id=current_user.id, event_id=event.id).first()
-        return render_template('view_event.html', event=event, registered=registered)
 
     @app.route('/register', methods=['GET', 'POST'])
     def register():
@@ -90,6 +84,7 @@ def create_app():
         flash('You have been logged out.', 'info')
         return redirect(url_for('index'))
 
+    # ----------------- Admin Routes -----------------
     @app.route('/admin')
     @login_required
     def admin_dashboard():
@@ -99,6 +94,7 @@ def create_app():
         pending_regs = Registration.query.filter_by(status='pending').order_by(Registration.created_at.desc()).all()
         return render_template('admin_dashboard.html', events=events, pending_regs=pending_regs)
 
+    # ----------------- Event CRUD -----------------
     @app.route('/admin/event/create', methods=['GET', 'POST'])
     @login_required
     def create_event():
@@ -130,6 +126,7 @@ def create_app():
         flash('Event deleted.', 'info')
         return redirect(url_for('admin_dashboard'))
 
+    # ----------------- Event Registration -----------------
     @app.route('/event/<int:event_id>/register', methods=['POST'])
     @login_required
     def register_for_event(event_id):
@@ -138,16 +135,24 @@ def create_app():
             accepted_count = Registration.query.filter_by(event_id=event.id, status='accepted').count()
             if accepted_count >= event.capacity:
                 flash('This event is full.', 'warning')
-                return redirect(url_for('view_event', event_id=event.id))
+                return redirect(url_for('index'))
         existing = Registration.query.filter_by(user_id=current_user.id, event_id=event.id).first()
         if existing:
             flash('You already registered for this event.', 'info')
-            return redirect(url_for('view_event', event_id=event.id))
+            return redirect(url_for('index'))
         reg = Registration(user_id=current_user.id, event_id=event.id, status='pending')
         db.session.add(reg)
         db.session.commit()
         flash('Registration submitted. Admin will confirm.', 'success')
-        return redirect(url_for('my_registrations'))
+        return redirect(url_for('index'))
+
+    @app.route('/event/<int:event_id>')
+    def view_event(event_id):
+        event = Event.query.get_or_404(event_id)
+        registered = None
+        if current_user.is_authenticated:
+            registered = Registration.query.filter_by(user_id=current_user.id, event_id=event.id).first()
+        return render_template('view_event.html', event=event, registered=registered)
 
     @app.route('/my-registrations')
     @login_required
@@ -193,7 +198,6 @@ def create_app():
         return render_template('404.html'), 404
 
     return app
-
 
 if __name__ == '__main__':
     app = create_app()
